@@ -1,7 +1,11 @@
 import React from "react";
+import LoginPage from "./Pages/LoginPage";
 
 function App(){
-    return <h1 className="text-blue-900 text-bold">Hello World</h1>;
+    return <div>
+        <LoginPage />
+    </div>
 }
+
 
 export default App;
