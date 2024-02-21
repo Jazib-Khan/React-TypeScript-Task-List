@@ -6,10 +6,11 @@ type Props = {}
 
 function Layout({}: Props) {
     return (
-        <div>
+        <div className="h-[100vh] flex flex-col">
             <Header />
-            <Outlet />
-
+            <div className="bg-pattern flex-1 max-h[90%] overflow-y-scroll">
+                <Outlet />
+            </div>
         </div>
     )
 }
