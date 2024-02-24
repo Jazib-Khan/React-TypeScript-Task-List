@@ -1,24 +1,32 @@
 import React, { useState } from 'react';
 import Input from './Input';
 import Button from './Button';
-import { BE_signUp } from '../Backend/Queries';
+import { BE_signIn, BE_signUp } from '../Backend/Queries';
+import { sign } from 'crypto';
 
 
 const Login = () => {
     const [login, setLogin] = useState(true);
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [signUpLoading, setSignUpLoading] = useState(false);
+    const [signInLoading, setSignInLoading] = useState(false);
 
     const handleSignup = () => {
         const data = {email, password, confirmPassword}
-        BE_signUp(data)
+        BE_signUp(data, setSignUpLoading, reset);
     };
     const handleSignin = () => {
-        const data = {email, password }
-        console.log(data)
+        const data = {email, password };
+        BE_signIn(data, setSignInLoading, reset);
     };
 
+    const reset = () => {
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+    };
     
     return (
         <div className="w-full md:w-[450px]">
@@ -43,18 +51,28 @@ const Login = () => {
                     name="confirm-password" 
                     type="password" 
                     value={confirmPassword}  
-                    onChange={e => setConfirmPassword(e.target.value)}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                 />}
 
                 {login ? (
                     <>
-                        <Button text="Login" onClick={handleSignin} />
+                        <Button 
+                            text="Login" 
+                            onClick={handleSignin} 
+                            loading={signInLoading} 
+                        />
                         <Button onClick={() => setLogin(false)} text="Register" secondary />
                     </>
                 ) : (
                     <> 
-                        <Button text="Register" onClick={handleSignup}/>
-                        <Button onClick={() => setLogin(true)} text="Login" secondary />
+                        <Button 
+                            text="Register" 
+                            onClick={handleSignup} 
+                            loading={signUpLoading}
+                        />
+                        <Button 
+                            text="Login"
+                            onClick={() => setLogin(true)} secondary />
                     </>
                 )}
             </div>
