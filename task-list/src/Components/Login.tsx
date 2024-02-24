@@ -3,6 +3,7 @@ import Input from './Input';
 import Button from './Button';
 import { BE_signIn, BE_signUp } from '../Backend/Queries';
 import { sign } from 'crypto';
+import { useNavigate } from 'react-router-dom';
 
 
 const Login = () => {
@@ -12,14 +13,15 @@ const Login = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [signUpLoading, setSignUpLoading] = useState(false);
     const [signInLoading, setSignInLoading] = useState(false);
+    const goTo = useNavigate()
 
     const handleSignup = () => {
         const data = {email, password, confirmPassword}
-        BE_signUp(data, setSignUpLoading, reset);
+        BE_signUp(data, setSignUpLoading, reset, goTo);
     };
     const handleSignin = () => {
-        const data = {email, password };
-        BE_signIn(data, setSignInLoading, reset);
+        const data = { email, password };
+        BE_signIn(data, setSignInLoading, reset, goTo);
     };
 
     const reset = () => {
