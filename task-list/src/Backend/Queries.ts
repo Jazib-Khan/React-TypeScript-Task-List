@@ -2,9 +2,10 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "fire
 import { auth, db } from "./Firebase";
 import { toastErr } from "../utils/toast";
 import CatchErr from "../utils/catchErr";
-import { authDataType, setLoadingType } from "../Type";
+import { authDataType, setLoadingType, userType } from "../Types";
 import { NavigateFunction } from "react-router-dom";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { defaultUser } from "../Redux/userSlice";
 
 // collection names
 const usersColl = "users";
@@ -29,12 +30,13 @@ export const BE_signUp = (
         if (password === confirmPassword){
             createUserWithEmailAndPassword(auth, email, password)
             .then(({ user }) => {
-
+    
                 const userInfo = addUserToCollection(
                     user.uid, 
                     user.email || "", 
                     user.email?.split("@")[0] || "",
-                    "imgLink");
+                    "imgLink"
+                );
                 
                 setLoading(false);
                 reset();
@@ -61,6 +63,13 @@ export const BE_signIn = (
 
     signInWithEmailAndPassword(auth, email, password)
     .then(({ user }) => {
+
+        
+
+        // get user info
+        const userInfo = getUserInfo(user.uid)
+
+
         console.log(user);
         setLoading(false);
         reset();
@@ -88,5 +97,31 @@ const addUserToCollection = async (
         bio: `Hi! my name is ${username}`
     });
 
-// return user info
+    return getUserInfo(id);
+};
+
+const getUserInfo = async (id:string): Promise<userType> => {
+
+    const userRef = doc(db, usersColl, id);
+    const user = await getDoc(userRef);
+
+    if(user.exists()) {
+        const { img, isOnline, username, email, bio, creationTime, lastSeen } = 
+            user.data();
+
+        return {
+            id: user.id,
+            img,
+            isOnline, 
+            username, 
+            email, 
+            bio,
+            creationTime,
+            lastSeen,
+        };
+
+    } else {
+        toastErr("getUserInfo: user not found");
+        return defaultUser;
+    }
 };
