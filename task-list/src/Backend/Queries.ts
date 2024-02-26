@@ -51,8 +51,8 @@ export const BE_signUp = (
                 CatchErr(err);
                 setLoading(false);
             });
-        } else toastErr("Passwords don't match!");
-    } else toastErr("Please fill in all fields");
+        } else toastErr("Passwords don't match!", setLoading);
+    } else toastErr("Please fill in all fields", setLoading);
 };
 
 export const BE_signIn = (

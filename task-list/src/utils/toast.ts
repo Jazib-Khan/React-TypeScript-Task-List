@@ -1,17 +1,22 @@
-import {toast } from "react-toastify";
+import { toast } from "react-toastify";
+import { setLoadingType } from "../Types";
 
-export const toastErr = (msg: string) => {
+export const toastErr = (msg: string, setLoading?:setLoadingType) => {
     toast.error(msg);
+    if(setLoading) setLoading(false);
 };
 
-export const toastSuccess = (msg: string) => {
+export const toastSuccess = (msg: string, setLoading?:setLoadingType) => {
     toast.success(msg);
+    if(setLoading) setLoading(false);
 };
 
-export const toastWarn = (msg: string) => {
+export const toastWarn = (msg: string, setLoading?:setLoadingType) => {
     toast.warn(msg);
+    if(setLoading) setLoading(false);
 };
 
-export const toastInfo = (msg: string) => {
+export const toastInfo = (msg: string, setLoading?:setLoadingType) => {
     toast.info(msg);
+    if(setLoading) setLoading(false);
 };
