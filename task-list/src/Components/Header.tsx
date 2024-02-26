@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from './Button';
+import AddListBoard from './AddListBoard';
 const logo = require("../Assets/logo.png");
 
 type Props = {}
@@ -13,7 +14,7 @@ function Header() {
                 alt="logo" />
         
             <div className="flex">
-                <Button text="Add New ListBoard" />
+                <AddListBoard />
             </div>
         </div>
     );
