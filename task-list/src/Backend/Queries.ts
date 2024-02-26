@@ -8,6 +8,7 @@ import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { defaultUser, setUser } from "../Redux/userSlice";
 import { AppDispatch } from "../Redux/store";
 import ConvertTime from "../utils/ConvertTime";
+import AvatarGenerator from "../utils/avatarGenerator";
 
 // collection names
 const usersColl = "users";
@@ -34,11 +35,13 @@ export const BE_signUp = (
             createUserWithEmailAndPassword(auth, email, password)
             .then(async ({ user }) => {
     
+                const imgLink = AvatarGenerator(user.email?.split("@")[0]);
+
                 const userInfo = await addUserToCollection(
                     user.uid, 
                     user.email || "", 
                     user.email?.split("@")[0] || "",
-                    "imgLink"
+                    imgLink
                 );
 
                 // set user in store

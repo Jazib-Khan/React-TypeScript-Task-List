@@ -15,7 +15,9 @@ const CatchErr = (err: { code?: string }) => {
     else if(code === "auth/requires-recent-login")
         toastInfo("please login again");
     else if(code === "unavailable")
-        toastErr("Firebase client is offline");
+        toastErr("firebase client is offline");
+    else if(code === "auth/invalid-credential") 
+        toastErr("invalid credentials");
     else 
         toastErr("something went wrong");
     console.log(err, err.code);
