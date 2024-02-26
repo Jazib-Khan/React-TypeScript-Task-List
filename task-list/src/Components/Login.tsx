@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import Input from './Input';
 import Button from './Button';
 import { BE_signIn, BE_signUp } from '../Backend/Queries';
-import { sign } from 'crypto';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../Redux/store';
+import { authDataType } from '../Types';
 
 
 const Login = () => {
@@ -13,15 +15,24 @@ const Login = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [signUpLoading, setSignUpLoading] = useState(false);
     const [signInLoading, setSignInLoading] = useState(false);
-    const goTo = useNavigate()
+    const goTo = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
 
     const handleSignup = () => {
         const data = {email, password, confirmPassword}
-        BE_signUp(data, setSignUpLoading, reset, goTo);
+        auth(data, BE_signUp, setSignUpLoading);
     };
     const handleSignin = () => {
         const data = { email, password };
-        BE_signIn(data, setSignInLoading, reset, goTo);
+        auth(data, BE_signIn, setSignInLoading);
+    };
+
+    const auth = (
+        data:authDataType, 
+        func: any, 
+        setLoading: React.Dispatch<React.SetStateAction<boolean>> 
+    ) => {
+        func(data, setLoading, reset, goTo, dispatch)
     };
 
     const reset = () => {

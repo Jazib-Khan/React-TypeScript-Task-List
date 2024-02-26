@@ -5,7 +5,8 @@ import CatchErr from "../utils/catchErr";
 import { authDataType, setLoadingType, userType } from "../Types";
 import { NavigateFunction } from "react-router-dom";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { defaultUser } from "../Redux/userSlice";
+import { defaultUser, setUser } from "../Redux/userSlice";
+import { AppDispatch } from "../Redux/store";
 
 // collection names
 const usersColl = "users";
@@ -19,7 +20,8 @@ export const BE_signUp = (
     data: authDataType,
     setLoading: setLoadingType,
     reset: () => void,
-    goTo: NavigateFunction
+    goTo: NavigateFunction,
+    dispatch: AppDispatch
 ) => {
     const {email, password, confirmPassword} = data;
 
@@ -29,15 +31,18 @@ export const BE_signUp = (
     if (email && password) {
         if (password === confirmPassword){
             createUserWithEmailAndPassword(auth, email, password)
-            .then(({ user }) => {
+            .then(async ({ user }) => {
     
-                const userInfo = addUserToCollection(
+                const userInfo = await addUserToCollection(
                     user.uid, 
                     user.email || "", 
                     user.email?.split("@")[0] || "",
                     "imgLink"
                 );
-                
+
+                // set user in store
+                dispatch(setUser(userInfo));
+
                 setLoading(false);
                 reset();
                 goTo("/dashboard");
@@ -54,7 +59,8 @@ export const BE_signIn = (
     data: authDataType,
     setLoading: setLoadingType,
     reset: () => void,
-    goTo: NavigateFunction
+    goTo: NavigateFunction,
+    dispatch: AppDispatch
 ) => {
     const {email, password} = data
 
@@ -62,15 +68,14 @@ export const BE_signIn = (
     setLoading(true)
 
     signInWithEmailAndPassword(auth, email, password)
-    .then(({ user }) => {
-
-        
+    .then(async ({ user }) => {
 
         // get user info
-        const userInfo = getUserInfo(user.uid)
+        const userInfo = await getUserInfo(user.uid);
 
+        // set user in store
+        dispatch(setUser(userInfo));
 
-        console.log(user);
         setLoading(false);
         reset();
         goTo("/dashboard");
