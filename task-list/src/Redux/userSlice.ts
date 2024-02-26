@@ -23,6 +23,11 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         setUser:(state, action) => {
+            const user = action.payload;
+
+            // store user in local storage
+            localStorage.setItem("task-list_user", JSON.stringify(user))
+
             // set logged in user
             state.currentUser = action.payload;
         },

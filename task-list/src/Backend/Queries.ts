@@ -4,7 +4,7 @@ import { toastErr } from "../utils/toast";
 import CatchErr from "../utils/catchErr";
 import { authDataType, setLoadingType, userType } from "../Types";
 import { NavigateFunction } from "react-router-dom";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { defaultUser, setUser } from "../Redux/userSlice";
 import { AppDispatch } from "../Redux/store";
 import ConvertTime from "../utils/ConvertTime";
@@ -74,6 +74,8 @@ export const BE_signIn = (
     signInWithEmailAndPassword(auth, email, password)
     .then(async ({ user }) => {
 
+        await updateUserInfo({ id:user.uid, isOnline: true });
+
         // get user info
         const userInfo = await getUserInfo(user.uid);
 
@@ -90,6 +92,7 @@ export const BE_signIn = (
     });
 };
 
+// add user to collection
 const addUserToCollection = async (
     id:string, 
     email:string, 
@@ -109,6 +112,7 @@ const addUserToCollection = async (
     return getUserInfo(id);
 };
 
+// get user info
 const getUserInfo = async (id:string): Promise<userType> => {
 
     const userRef = doc(db, usersColl, id);
@@ -137,3 +141,38 @@ const getUserInfo = async (id:string): Promise<userType> => {
         return defaultUser;
     }
 };
+
+// update user info
+const updateUserInfo = async ({
+    id,
+    username, 
+    img,
+    isOnline,
+    isOffline,
+}: {
+    id?: string;
+    username?: string;
+    img?: string;
+    isOnline?: boolean;
+    isOffline?: boolean;
+}) => {
+    if(!id){
+        id = getStorageUser().id
+    }
+
+    if(id){
+        await updateDoc(doc(db, usersColl, id), {
+            ...( username && { username }),
+            ...( isOnline && { isOnline }),
+            ...( isOffline && { isOnline: false }),
+            ...( img && { img }),
+            lastSeen: serverTimestamp(),
+        });
+    }
+};
+
+const getStorageUser = () => {
+    const usr = localStorage.getItem("task-list_user")
+    if(usr) return JSON.parse(usr)
+    else return null
+}
