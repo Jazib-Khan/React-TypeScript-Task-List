@@ -1,11 +1,11 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "./Firebase";
 import { toastErr } from "../utils/toast";
 import CatchErr from "../utils/catchErr";
 import { authDataType, setLoadingType, userType } from "../Types";
 import { NavigateFunction } from "react-router-dom";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
-import { defaultUser, setUser } from "../Redux/userSlice";
+import { defaultUser, setUser, userStorageName } from "../Redux/userSlice";
 import { AppDispatch } from "../Redux/store";
 import ConvertTime from "../utils/ConvertTime";
 import AvatarGenerator from "../utils/avatarGenerator";
@@ -59,6 +59,7 @@ export const BE_signUp = (
     } else toastErr("Please fill in all fields", setLoading);
 };
 
+// sign in a user
 export const BE_signIn = (
     data: authDataType,
     setLoading: setLoadingType,
@@ -90,6 +91,36 @@ export const BE_signIn = (
         CatchErr(err);
         setLoading(false);
     });
+};
+
+// signout
+export const BE_signOut = (
+    dispatch:AppDispatch, 
+    goTo: NavigateFunction, 
+    setLoading:setLoadingType
+) => {
+
+    setLoading(true)
+
+    // logout in firebase
+    signOut(auth)
+    .then(async () => {
+
+        // route to auth page
+        goTo("/auth");
+
+        // set user offline
+        await updateUserInfo({ isOffline: true });
+
+        // set currentSelect user to empty user
+        dispatch(setUser(defaultUser));
+
+        // remove from local storage
+        localStorage.removeItem(userStorageName);
+
+        setLoading(false);
+    })
+    .catch((err) => CatchErr(err)); 
 };
 
 // add user to collection
@@ -171,8 +202,9 @@ const updateUserInfo = async ({
     }
 };
 
+// get user from local storage
 const getStorageUser = () => {
-    const usr = localStorage.getItem("task-list_user")
+    const usr = localStorage.getItem(userStorageName)
     if(usr) return JSON.parse(usr)
     else return null
 }
